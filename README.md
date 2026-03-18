@@ -1,11 +1,30 @@
-<div align="center">
+# Bright Future Academy - Netlify Deployment Guide
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+This project is a React Single Page Application (SPA) built with Vite and Tailwind CSS. It features an AI Chatbot powered by Google's Gemini API.
 
-  <h1>Built with AI Studio</h2>
+## Deployment Steps
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+### 1. Connect to Netlify
+- Push your code to a GitHub, GitLab, or Bitbucket repository.
+- Log in to [Netlify](https://www.netlify.com/) and click **"Add new site"** > **"Import an existing project"**.
+- Select your repository.
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+### 2. Configure Build Settings
+Netlify should automatically detect the settings from `netlify.toml`, but if not, use:
+- **Build command:** `npm run build`
+- **Publish directory:** `dist`
 
-</div>
+### 3. Set Environment Variables
+The AI Chatbot requires a Gemini API Key.
+- Go to **Site Configuration** > **Environment variables**.
+- Add a new variable:
+  - **Key:** `GEMINI_API_KEY`
+  - **Value:** Your Google Gemini API Key (Get one at [aistudio.google.com](https://aistudio.google.com/)).
+
+### 4. Deploy
+- Click **"Deploy site"**. Netlify will build and host your application.
+
+## Why these files were added?
+- `netlify.toml`: Configures the build process and handles client-side routing (redirecting all paths to `index.html`).
+- `public/_redirects`: A fallback for Netlify's routing if `netlify.toml` is not used.
+- `vite.config.ts`: Configured to bake the `GEMINI_API_KEY` into the client-side code during the build process.

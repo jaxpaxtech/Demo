@@ -1,0 +1,7 @@
+{
+  "name": "Remix: Bright Future Academy - Demo",
+  "description": "A premium modern demo website for coaching institutes, featuring academic excellence and expert guidance.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
