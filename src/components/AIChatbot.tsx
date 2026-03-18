@@ -104,9 +104,19 @@ export const AIChatbot = () => {
 
     try {
       const apiKey = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY || "";
+      
+      if (!apiKey || apiKey === "YOUR_API_KEY_HERE" || apiKey === "MY_GEMINI_API_KEY") {
+        setMessages(prev => [...prev, { 
+          role: "model", 
+          text: "⚠️ **API Key Missing:** Please add your `GEMINI_API_KEY` in the AI Studio Secrets panel (Settings ⚙️ > Secrets) to enable the chatbot." 
+        }]);
+        setIsLoading(false);
+        return;
+      }
+
       const ai = new GoogleGenAI({ apiKey });
       const chat = ai.chats.create({
-        model: "gemini-3-flash-preview",
+        model: "gemini-2.5-flash",
         config: {
           systemInstruction: SYSTEM_INSTRUCTION,
           tools: [{ googleMaps: {} }],
