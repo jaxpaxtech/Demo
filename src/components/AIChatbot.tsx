@@ -19,9 +19,21 @@ Key Information:
 - Success Rate: 94% selection rate in top colleges.
 - Contact: +91 98765 43210, hello@brightfuture.edu
 
+New Features to Mention:
+- Methodology: We have a unique 5-step success science (Conceptual Depth, Rigorous Practice, Adaptive Testing, Personal Mentoring, AI Insights). Suggest users visit the "Explore Methodology" page for details.
+- Results: Our hall of fame is filled with top achievers. Suggest users visit the "View All Results" page to see our success stories.
+
 If you don't know something, suggest they contact a human counselor at the academy.
 Keep responses concise and formatted with markdown if needed.
 `;
+
+const QUICK_QUESTIONS = [
+  "Tell me about your methodology",
+  "Show me recent results",
+  "What courses do you offer?",
+  "How can I apply?",
+  "Where is the academy located?"
+];
 
 interface Message {
   role: "user" | "model";
@@ -37,7 +49,24 @@ export const AIChatbot = () => {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [viewportHeight, setViewportHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 0);
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.visualViewport) return;
+
+    const handleResize = () => {
+      if (window.visualViewport) {
+        setViewportHeight(window.visualViewport.height);
+        // If viewport height is significantly less than window height, keyboard is likely open
+        setIsKeyboardOpen(window.visualViewport.height < window.innerHeight * 0.85);
+      }
+    };
+
+    window.visualViewport.addEventListener("resize", handleResize);
+    return () => window.visualViewport?.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     if ("geolocation" in navigator) {
@@ -61,18 +90,21 @@ export const AIChatbot = () => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, isKeyboardOpen]);
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+  const handleSend = async (textOverride?: string) => {
+    // Ensure textOverride is a string and not an event object
+    const textToSend = (typeof textOverride === 'string' ? textOverride : input).trim();
+    if (!textToSend || isLoading) return;
 
-    const userMessage = input.trim();
-    setInput("");
+    const userMessage = textToSend;
+    if (typeof textOverride !== 'string') setInput("");
     setMessages(prev => [...prev, { role: "user", text: userMessage }]);
     setIsLoading(true);
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+      const apiKey = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY || "";
+      const ai = new GoogleGenAI({ apiKey });
       const chat = ai.chats.create({
         model: "gemini-3-flash-preview",
         config: {
@@ -116,14 +148,23 @@ export const AIChatbot = () => {
   };
 
   return (
-    <div className="fixed bottom-10 right-10 z-[100]">
+    <div className="fixed bottom-6 right-6 z-[100]">
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 40, scale: 0.9, transformOrigin: "bottom right" }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 40, scale: 0.9 }}
-            className="absolute bottom-24 right-0 w-[90vw] md:w-[450px] h-[700px] max-h-[85vh] bg-white rounded-[3.5rem] shadow-[0_40px_100px_rgba(0,0,0,0.15)] border border-slate-100 flex flex-col overflow-hidden"
+            initial={{ opacity: 0, y: 20, scale: 0.95, transformOrigin: "bottom right" }}
+            animate={{ 
+              opacity: 1, 
+              y: 0, 
+              scale: 1,
+              height: isKeyboardOpen ? viewportHeight - 100 : "min(700px, 80vh)"
+            }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            style={{ 
+              bottom: "72px",
+              right: "0px"
+            }}
+            className="absolute w-[calc(100vw-48px)] md:w-[400px] bg-white/95 backdrop-blur-xl rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-white/20 flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="p-8 bg-academy-dark text-white flex items-center justify-between relative overflow-hidden">
@@ -143,16 +184,38 @@ export const AIChatbot = () => {
                   </p>
                 </div>
               </div>
-              <button 
-                onClick={() => setIsOpen(false)}
-                className="w-10 h-10 flex items-center justify-center rounded-2xl bg-white/5 hover:bg-white/10 transition-all relative z-10 border border-white/10"
-              >
-                <X className="w-6 h-6" />
-              </button>
+                <div className="flex items-center gap-2 relative z-10">
+                  <button 
+                    onClick={() => setMessages([{ role: "model", text: "Chat cleared. How can I help you now?" }])}
+                    className="w-10 h-10 flex items-center justify-center rounded-2xl bg-white/5 hover:bg-white/10 transition-all border border-white/10"
+                    title="Clear Chat"
+                  >
+                    <Sparkles className="w-5 h-5 text-blue-300" />
+                  </button>
+                  <button 
+                    onClick={() => setIsOpen(false)}
+                    className="w-10 h-10 flex items-center justify-center rounded-2xl bg-white/5 hover:bg-white/10 transition-all border border-white/10"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
             </div>
 
             {/* Messages */}
-            <div className="flex-grow overflow-y-auto p-8 space-y-8 bg-slate-50/30">
+            <div className="flex-grow overflow-y-auto p-8 space-y-8 bg-slate-50/30 no-scrollbar">
+              {messages.length === 1 && (
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {QUICK_QUESTIONS.map((q, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleSend(q)}
+                      className="px-4 py-2 bg-white border border-slate-200 rounded-full text-xs font-bold text-slate-600 hover:border-academy-blue hover:text-academy-blue transition-all shadow-sm"
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+              )}
               {messages.map((msg, i) => (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
@@ -164,7 +227,11 @@ export const AIChatbot = () => {
                     <div className={`w-10 h-10 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-sm ${msg.role === "user" ? "bg-academy-dark text-white" : "bg-white text-academy-blue border border-slate-100"}`}>
                       {msg.role === "user" ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
                     </div>
-                    <div className={`p-6 rounded-[2rem] text-base font-medium leading-relaxed shadow-sm ${msg.role === "user" ? "bg-academy-blue text-white rounded-tr-none" : "bg-white text-slate-700 border border-slate-100 rounded-tl-none"}`}>
+                    <div className={`p-6 rounded-[2rem] text-base font-medium leading-relaxed shadow-md transition-all ${
+                      msg.role === "user" 
+                        ? "bg-gradient-to-br from-academy-blue to-blue-700 text-white rounded-tr-none" 
+                        : "bg-white text-slate-700 border border-slate-100 rounded-tl-none"
+                    }`}>
                       {msg.text}
                       {msg.groundingLinks && msg.groundingLinks.length > 0 && (
                         <div className="mt-6 pt-6 border-t border-slate-100 space-y-3">
@@ -230,7 +297,7 @@ export const AIChatbot = () => {
                   className="w-full pl-8 pr-16 py-5 bg-slate-50 rounded-[2rem] border-2 border-transparent focus:border-blue-100 focus:bg-white outline-none font-bold text-base transition-all shadow-inner"
                 />
                 <button
-                  onClick={handleSend}
+                  onClick={() => handleSend()}
                   disabled={isLoading || !input.trim()}
                   className="absolute right-3 w-12 h-12 bg-academy-blue text-white rounded-2xl flex items-center justify-center hover:bg-blue-600 disabled:opacity-50 disabled:hover:bg-academy-blue transition-all shadow-lg shadow-blue-200"
                 >
@@ -267,7 +334,7 @@ export const AIChatbot = () => {
         whileHover={{ scale: 1.1, y: -5 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-20 h-20 bg-academy-dark text-white rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.2)] flex items-center justify-center group relative overflow-hidden border border-white/10"
+        className="w-16 h-16 bg-academy-dark text-white rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.2)] flex items-center justify-center group relative overflow-hidden border border-white/10"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
         <AnimatePresence mode="wait">
@@ -279,7 +346,7 @@ export const AIChatbot = () => {
               exit={{ opacity: 0, rotate: 90, scale: 0.5 }}
               className="relative z-10"
             >
-              <X className="w-10 h-10" />
+              <X className="w-8 h-8" />
             </motion.div>
           ) : (
             <motion.div
@@ -289,7 +356,7 @@ export const AIChatbot = () => {
               exit={{ opacity: 0, rotate: -90, scale: 0.5 }}
               className="flex items-center justify-center relative z-10"
             >
-              <MessageSquare className="w-10 h-10 group-hover:scale-110 transition-transform" />
+              <MessageSquare className="w-8 h-8 group-hover:scale-110 transition-transform" />
             </motion.div>
           )}
         </AnimatePresence>

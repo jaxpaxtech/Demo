@@ -18,7 +18,7 @@ Netlify should automatically detect the settings from `netlify.toml`, but if not
 The AI Chatbot requires a Gemini API Key.
 - Go to **Site Configuration** > **Environment variables**.
 - Add a new variable:
-  - **Key:** `GEMINI_API_KEY`
+  - **Key:** `VITE_GEMINI_API_KEY` (or `GEMINI_API_KEY`)
   - **Value:** Your Google Gemini API Key (Get one at [aistudio.google.com](https://aistudio.google.com/)).
 
 ### 4. Deploy
@@ -27,4 +27,4 @@ The AI Chatbot requires a Gemini API Key.
 ## Why these files were added?
 - `netlify.toml`: Configures the build process and handles client-side routing (redirecting all paths to `index.html`).
 - `public/_redirects`: A fallback for Netlify's routing if `netlify.toml` is not used.
-- `vite.config.ts`: Configured to bake the `GEMINI_API_KEY` into the client-side code during the build process.
+- `vite.config.ts`: Configured to bake the `VITE_GEMINI_API_KEY` or `GEMINI_API_KEY` into the client-side code during the build process.
