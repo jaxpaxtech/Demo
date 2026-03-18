@@ -4,19 +4,26 @@
 @theme {
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   
-  --color-academy-blue: #3b82f6;
-  --color-academy-dark: #0f172a;
+  --color-academy-blue: #2563eb;
+  --color-academy-blue-light: #60a5fa;
+  --color-academy-dark: #020617;
+  --color-academy-slate: #1e293b;
   --color-academy-light: #f8fafc;
-  --color-accent-purple: #8b5cf6;
+  --color-accent-purple: #7c3aed;
+  --color-accent-pink: #db2777;
+  
+  --radius-4xl: 2rem;
+  --radius-5xl: 3rem;
 }
 
 @layer base {
   html {
     scroll-behavior: smooth;
+    @apply antialiased;
   }
   
   body {
-    @apply bg-white text-academy-dark font-sans antialiased selection:bg-academy-blue/20 selection:text-academy-blue;
+    @apply bg-white text-academy-dark font-sans selection:bg-academy-blue/20 selection:text-academy-blue overflow-x-hidden;
   }
 }
 
@@ -24,30 +31,42 @@
   .mesh-gradient {
     background-color: #ffffff;
     background-image: 
-      radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.05) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.05) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.05) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, rgba(139, 92, 246, 0.05) 0px, transparent 50%);
+      radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.03) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(124, 58, 237, 0.03) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(37, 99, 235, 0.03) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(37, 99, 235, 0.03) 0px, transparent 50%);
   }
 
   .glass {
-    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)];
+    @apply bg-white/80 backdrop-blur-2xl border border-white/40 shadow-[0_8px_32px_0_rgba(31,38,135,0.05)];
   }
 
   .glass-dark {
-    @apply bg-slate-900/80 backdrop-blur-xl border border-slate-700/30 shadow-2xl;
+    @apply bg-slate-950/80 backdrop-blur-2xl border border-slate-800/50 shadow-2xl;
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-academy-blue to-accent-purple;
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-academy-blue via-accent-purple to-accent-pink;
   }
 
   .bento-card {
-    @apply relative overflow-hidden rounded-[2.5rem] border border-slate-100 bg-white p-8 transition-all duration-500 hover:shadow-[0_20px_50px_rgba(0,0,0,0.05)] hover:-translate-y-1;
+    @apply relative overflow-hidden rounded-[2.5rem] border border-slate-100 bg-white p-8 transition-all duration-700 hover:shadow-[0_30px_60px_rgba(0,0,0,0.04)] hover:-translate-y-2;
   }
 
   .section-padding {
-    @apply py-24 md:py-40;
+    @apply py-24 md:py-32 lg:py-40;
+  }
+
+  .btn-primary {
+    @apply relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-300 bg-academy-blue rounded-2xl hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-200 active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply relative inline-flex items-center justify-center px-8 py-4 font-bold text-academy-dark transition-all duration-300 bg-white border border-slate-200 rounded-2xl hover:bg-slate-50 hover:border-slate-300 active:scale-95;
+  }
+  
+  .card-gradient {
+    @apply bg-gradient-to-br from-white to-slate-50 border border-slate-100;
   }
 }
 

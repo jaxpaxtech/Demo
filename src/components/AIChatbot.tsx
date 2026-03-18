@@ -74,7 +74,7 @@ export const AIChatbot = () => {
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
       const chat = ai.chats.create({
-        model: "gemini-2.5-flash",
+        model: "gemini-3-flash-preview",
         config: {
           systemInstruction: SYSTEM_INSTRUCTION,
           tools: [{ googleMaps: {} }],
@@ -120,60 +120,66 @@ export const AIChatbot = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.9, transformOrigin: "bottom right" }}
+            initial={{ opacity: 0, y: 40, scale: 0.9, transformOrigin: "bottom right" }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="absolute bottom-20 right-0 w-[90vw] md:w-[400px] h-[600px] max-h-[80vh] bg-white rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-slate-100 flex flex-col overflow-hidden"
+            exit={{ opacity: 0, y: 40, scale: 0.9 }}
+            className="absolute bottom-24 right-0 w-[90vw] md:w-[450px] h-[700px] max-h-[85vh] bg-white rounded-[3.5rem] shadow-[0_40px_100px_rgba(0,0,0,0.15)] border border-slate-100 flex flex-col overflow-hidden"
           >
             {/* Header */}
-            <div className="p-6 bg-academy-blue text-white flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                  <Bot className="w-6 h-6" />
+            <div className="p-8 bg-academy-dark text-white flex items-center justify-between relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
+                <div className="absolute top-[-50%] right-[-20%] w-[100%] h-[100%] bg-blue-600 rounded-full blur-[80px]"></div>
+              </div>
+              
+              <div className="flex items-center gap-4 relative z-10">
+                <div className="w-14 h-14 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-white/20 shadow-inner">
+                  <Bot className="w-8 h-8 text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="font-bold">Bright Future AI</h3>
-                  <p className="text-xs text-blue-100 flex items-center gap-1">
-                    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                    Online & Ready to Help
+                  <h3 className="text-xl font-black tracking-tight">Bright Future AI</h3>
+                  <p className="text-xs text-blue-300 font-black uppercase tracking-widest flex items-center gap-2">
+                    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(74,222,128,0.5)]" />
+                    Active Now
                   </p>
                 </div>
               </div>
               <button 
                 onClick={() => setIsOpen(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                className="w-10 h-10 flex items-center justify-center rounded-2xl bg-white/5 hover:bg-white/10 transition-all relative z-10 border border-white/10"
               >
-                <X className="w-5 h-5" />
+                <X className="w-6 h-6" />
               </button>
             </div>
 
             {/* Messages */}
-            <div className="flex-grow overflow-y-auto p-6 space-y-4 bg-slate-50/50">
+            <div className="flex-grow overflow-y-auto p-8 space-y-8 bg-slate-50/30">
               {messages.map((msg, i) => (
                 <motion.div
-                  initial={{ opacity: 0, x: msg.role === "user" ? 10 : -10 }}
-                  animate={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
                   key={i}
                   className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
-                  <div className={`flex gap-2 max-w-[85%] ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
-                    <div className={`w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center ${msg.role === "user" ? "bg-academy-dark text-white" : "bg-academy-blue text-white"}`}>
-                      {msg.role === "user" ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                  <div className={`flex gap-4 max-w-[85%] ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
+                    <div className={`w-10 h-10 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-sm ${msg.role === "user" ? "bg-academy-dark text-white" : "bg-white text-academy-blue border border-slate-100"}`}>
+                      {msg.role === "user" ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
                     </div>
-                    <div className={`p-4 rounded-2xl text-sm font-medium leading-relaxed ${msg.role === "user" ? "bg-academy-dark text-white rounded-tr-none" : "bg-white text-slate-700 shadow-sm border border-slate-100 rounded-tl-none"}`}>
+                    <div className={`p-6 rounded-[2rem] text-base font-medium leading-relaxed shadow-sm ${msg.role === "user" ? "bg-academy-blue text-white rounded-tr-none" : "bg-white text-slate-700 border border-slate-100 rounded-tl-none"}`}>
                       {msg.text}
                       {msg.groundingLinks && msg.groundingLinks.length > 0 && (
-                        <div className="mt-3 pt-3 border-t border-slate-100 space-y-2">
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Map References:</p>
+                        <div className="mt-6 pt-6 border-t border-slate-100 space-y-3">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Map References:</p>
                           {msg.groundingLinks.map((link, idx) => (
                             <a 
                               key={idx} 
                               href={link.uri} 
                               target="_blank" 
                               rel="noopener noreferrer"
-                              className="flex items-center gap-2 text-academy-blue hover:underline text-xs font-bold"
+                              className="flex items-center gap-3 text-academy-blue hover:text-blue-700 transition-colors text-sm font-black group"
                             >
-                              <MapPin className="w-3 h-3" />
+                              <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <MapPin className="w-4 h-4" />
+                              </div>
                               {link.title}
                             </a>
                           ))}
@@ -185,12 +191,26 @@ export const AIChatbot = () => {
               ))}
               {isLoading && (
                 <div className="flex justify-start">
-                  <div className="flex gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-academy-blue text-white flex items-center justify-center">
-                      <Bot className="w-4 h-4" />
+                  <div className="flex gap-4">
+                    <div className="w-10 h-10 rounded-2xl bg-white text-academy-blue border border-slate-100 flex items-center justify-center shadow-sm">
+                      <Bot className="w-5 h-5" />
                     </div>
-                    <div className="p-4 bg-white rounded-2xl rounded-tl-none shadow-sm border border-slate-100">
-                      <Loader2 className="w-4 h-4 animate-spin text-academy-blue" />
+                    <div className="p-6 bg-white rounded-[2rem] rounded-tl-none shadow-sm border border-slate-100 flex items-center gap-2">
+                      <motion.div 
+                        animate={{ scale: [1, 1.5, 1] }} 
+                        transition={{ repeat: Infinity, duration: 1 }}
+                        className="w-2 h-2 bg-blue-400 rounded-full" 
+                      />
+                      <motion.div 
+                        animate={{ scale: [1, 1.5, 1] }} 
+                        transition={{ repeat: Infinity, duration: 1, delay: 0.2 }}
+                        className="w-2 h-2 bg-blue-400 rounded-full" 
+                      />
+                      <motion.div 
+                        animate={{ scale: [1, 1.5, 1] }} 
+                        transition={{ repeat: Infinity, duration: 1, delay: 0.4 }}
+                        className="w-2 h-2 bg-blue-400 rounded-full" 
+                      />
                     </div>
                   </div>
                 </div>
@@ -199,27 +219,31 @@ export const AIChatbot = () => {
             </div>
 
             {/* Input */}
-            <div className="p-4 bg-white border-t border-slate-100">
-              <div className="relative flex items-center">
+            <div className="p-8 bg-white border-t border-slate-100">
+              <div className="relative flex items-center group">
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSend()}
                   placeholder="Ask about admissions, courses..."
-                  className="w-full pl-6 pr-14 py-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-100 outline-none font-bold text-sm transition-all"
+                  className="w-full pl-8 pr-16 py-5 bg-slate-50 rounded-[2rem] border-2 border-transparent focus:border-blue-100 focus:bg-white outline-none font-bold text-base transition-all shadow-inner"
                 />
                 <button
                   onClick={handleSend}
                   disabled={isLoading || !input.trim()}
-                  className="absolute right-2 w-10 h-10 bg-academy-blue text-white rounded-xl flex items-center justify-center hover:bg-blue-600 disabled:opacity-50 disabled:hover:bg-academy-blue transition-all"
+                  className="absolute right-3 w-12 h-12 bg-academy-blue text-white rounded-2xl flex items-center justify-center hover:bg-blue-600 disabled:opacity-50 disabled:hover:bg-academy-blue transition-all shadow-lg shadow-blue-200"
                 >
-                  <Send className="w-4 h-4" />
+                  <Send className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-[10px] text-center text-slate-400 mt-3 font-bold uppercase tracking-widest flex items-center justify-center gap-1">
-                Powered by <Sparkles className="w-3 h-3" /> Gemini AI
-              </p>
+              <div className="flex items-center justify-center gap-2 mt-6">
+                <div className="h-[1px] flex-grow bg-slate-100"></div>
+                <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.4em] flex items-center gap-2">
+                  Powered by <Sparkles className="w-3 h-3 text-blue-400" /> Gemini 3
+                </p>
+                <div className="h-[1px] flex-grow bg-slate-100"></div>
+              </div>
             </div>
           </motion.div>
         )}
@@ -230,9 +254,9 @@ export const AIChatbot = () => {
         animate={!isOpen ? {
           scale: [1, 1.05, 1],
           boxShadow: [
-            "0 20px 50px rgba(59,130,246,0.3)",
-            "0 20px 60px rgba(59,130,246,0.5)",
-            "0 20px 50px rgba(59,130,246,0.3)"
+            "0 30px 60px rgba(59,130,246,0.3)",
+            "0 30px 80px rgba(59,130,246,0.5)",
+            "0 30px 60px rgba(59,130,246,0.3)"
           ]
         } : { scale: 1 }}
         transition={{
@@ -240,30 +264,32 @@ export const AIChatbot = () => {
           repeat: Infinity,
           ease: "easeInOut"
         }}
-        whileHover={{ scale: 1.1 }}
+        whileHover={{ scale: 1.1, y: -5 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-16 h-16 bg-academy-blue text-white rounded-3xl shadow-[0_20px_50px_rgba(59,130,246,0.3)] flex items-center justify-center group relative overflow-hidden"
+        className="w-20 h-20 bg-academy-dark text-white rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.2)] flex items-center justify-center group relative overflow-hidden border border-white/10"
       >
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
         <AnimatePresence mode="wait">
           {isOpen ? (
             <motion.div
               key="close"
-              initial={{ opacity: 0, rotate: -90 }}
-              animate={{ opacity: 1, rotate: 0 }}
-              exit={{ opacity: 0, rotate: 90 }}
+              initial={{ opacity: 0, rotate: -90, scale: 0.5 }}
+              animate={{ opacity: 1, rotate: 0, scale: 1 }}
+              exit={{ opacity: 0, rotate: 90, scale: 0.5 }}
+              className="relative z-10"
             >
-              <X className="w-8 h-8" />
+              <X className="w-10 h-10" />
             </motion.div>
           ) : (
             <motion.div
               key="open"
-              initial={{ opacity: 0, rotate: 90 }}
-              animate={{ opacity: 1, rotate: 0 }}
-              exit={{ opacity: 0, rotate: -90 }}
-              className="flex items-center justify-center"
+              initial={{ opacity: 0, rotate: 90, scale: 0.5 }}
+              animate={{ opacity: 1, rotate: 0, scale: 1 }}
+              exit={{ opacity: 0, rotate: -90, scale: 0.5 }}
+              className="flex items-center justify-center relative z-10"
             >
-              <MessageSquare className="w-8 h-8 group-hover:scale-110 transition-transform" />
+              <MessageSquare className="w-10 h-10 group-hover:scale-110 transition-transform" />
             </motion.div>
           )}
         </AnimatePresence>
